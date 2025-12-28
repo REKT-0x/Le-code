@@ -1,1 +1,72 @@
+<script>
+    // 1. MATRIX BACKGROUND ANIMATION
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0F0";
+        ctx.font = fontSize + "px arial";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 35);
+
+    // 2. REMOTE PASSWORD CHECKER & LOADING BAR
+    async function checkCode() {
+        const userInput = document.getElementById('code-input').value;
+        const msg = document.getElementById('message');
+        const btn = document.querySelector('button');
+        
+        // YOUR GIST RAW URL
+        const gistURL = "https://gist.githubusercontent.com/jinxed1982/8f268a1bbb17864cbf9c16dac963f41b/raw/code.txt";
+
+        try {
+            msg.innerText = "BYPASSING FIREWALL... 0%";
+            msg.style.color = "#00ff41";
+            btn.disabled = true;
+
+            // Visual "Hacking" Delay
+            let progress = 0;
+            let interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 20);
+                if (progress > 100) progress = 100;
+                msg.innerText = `BYPASSING FIREWALL... ${progress}%`;
+                if (progress === 100) clearInterval(interval);
+            }, 100);
+
+            // Fetch the code from your Gist
+            const response = await fetch(gistURL + "?t=" + new Date().getTime()); // Added timestamp to prevent caching
+            const correctCode = (await response.text()).trim();
+
+            setTimeout(() => {
+                if (userInput === correctCode) {
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('claim-screen').style.display = 'block';
+                } else {
+                    msg.innerText = "ERROR: WRONG ENCRYPTION KEY";
+                    msg.style.color = "red";
+                    btn.disabled = false;
+                }
+            }, 1200);
+
+        } catch (error) {
+            msg.innerText = "CONNECTION FAILED: SYSTEM OFFLINE";
+            msg.style.color = "orange";
+            btn.disabled = false;
+        }
+    }
+</script>
 
